@@ -91,7 +91,7 @@ function loadScript() {
     fetch('twee/script.tw')
       .then(function (response) {
         response.text().then(function(text) {
-          game.passages = text.split(/::[A-z ]+\n/).slice(1);
+          game.passages = text.split(/::[A-z '\[\]]+\n/).slice(1);
           resolve();
       });
     });

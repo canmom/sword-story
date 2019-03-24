@@ -26,7 +26,7 @@ main {
     top: 36vh;
     text-align: center;
     opacity: 1;
-    transition: opacity 500ms linear;
+    transition: opacity 350ms linear;
 }
 
 #narration.disappearing {
@@ -37,7 +37,7 @@ main {
     margin: 0;
     padding: 0;
     z-index: 0;
-    max-height: 32vh;
+    max-height: 35vh;
     overflow: hidden;
 }
 
@@ -51,7 +51,7 @@ main {
 
 #passages p.revealed {
     padding-bottom: 0.8em;
-    max-height: 12vh;
+    max-height: 14vh;
 }
 
 #passages p.revealed:first-child {
