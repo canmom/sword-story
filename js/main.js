@@ -88,7 +88,7 @@ function showNextParagraph() {
 
 function loadScript() {
   return new Promise(function(resolve, reject) {
-    fetch('../twee/script.tw')
+    fetch('twee/script.tw')
       .then(function (response) {
         response.text().then(function(text) {
           game.passages = text.split(/::[A-z ]+\n/).slice(1);
