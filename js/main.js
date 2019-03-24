@@ -4,7 +4,8 @@ const game = {
   paragraphIndex : 0,
   passageIndex : 0,
   passageContainer: document.getElementById('passages'),
-  narrationBox: document.getElementById('narration')
+  narrationBox: document.getElementById('narration'),
+  passages: null,  
 };
 
 function smarten(text) {
@@ -61,8 +62,7 @@ function revealNarration() {
 }
 
 function displayPassage() {
-  renderPassage(passages[game.passageIndex]);
-  console.log('DisplayPassage called')
+  renderPassage(game.passages[game.passageIndex]);
   game.passageIndex += 1;
 }
 
@@ -72,7 +72,6 @@ function nextPassage() {
   //when the fadeout is complete...
   game.narrationBox.addEventListener('transitionend', function (e) {
     game.narrationBox.removeEventListener('transitionend', arguments.callee);
-    console.log('Event caught:' + e)
     displayPassage();
     revealNarration();
   });
@@ -87,6 +86,19 @@ function showNextParagraph() {
   }
 }
 
+function loadScript() {
+  return new Promise(function(resolve, reject) {
+    fetch('../twee/script.tw')
+      .then(function (response) {
+        response.text().then(function(text) {
+          game.passages = text.split(/::[A-z ]+\n/).slice(1);
+          resolve();
+      });
+    });
+  });
+}
+
 document.getElementById('nextbutton').addEventListener('click', showNextParagraph)
 
-displayPassage();
+
+loadScript().then(displayPassage);
