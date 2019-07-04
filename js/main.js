@@ -1,4 +1,4 @@
-const imagePrefix = '/img/'
+const imagePrefix = 'img/'
 
 const game = {
   narration : document.getElementById('narration'),
