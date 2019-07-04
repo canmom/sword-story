@@ -13,8 +13,14 @@ html {
 main {
     width: 139vh;
     height: 100vh;
-    background-image: url('../img/background.png');
-    background-size: contain;
+    /*background-image: url('../img/background.png');*/
+    /*background-size: contain;*/
+}
+
+main canvas {
+    position: absolute;
+    width: 139vh;
+    height: 100vh;
 }
 
 #narration {
