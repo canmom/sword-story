@@ -28,7 +28,7 @@ function smarten(text) {
 
 function recursivelySmarten(element) {
   element.childNodes.forEach( (child) => {
-    if (child.nodeType === Node.ELEMENT_NODE) {
+    if (child.nodeType !== Node.TEXT_NODE) {
       recursivelySmarten(child)
     } else if (child.nodeType === Node.TEXT_NODE) {
         child.nodeValue = smarten(child.nodeValue);
