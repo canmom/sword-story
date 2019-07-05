@@ -1,0 +1,18 @@
+[
+    {
+        "framesImage": "blink.png",
+        "nFrames": 5,
+        "pos": {"x": 120, "y": 190},
+        "frameInterval": 100,
+        "loopInterval": 2500,
+        "loopStyle": "rewind"
+    },
+    {
+        "framesImage": "roll.png",
+        "nFrames": 4,
+        "pos": {"x": 509,"y": 742},
+        "frameInterval": 100,
+        "loopInterval": 8000,
+        "loopStyle": "rewind"
+    }
+]

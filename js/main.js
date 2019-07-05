@@ -15,25 +15,30 @@ const game = {
 };
 
 class Animation {
-  // currentFrame = 0;
-  // framesImage;
-  // nFrames = 0;
-  // pos = {x: 0, y: 0};
-  // frameSize = {w: 0, h: 0}
-  // frameInterval = 0;
-  // loopInterval = 0;
-  // loopStyle = "basic";
-  // #rewinding = false;
-  // nextFrameTimestamp = 0;
-
-  constructor(frames, nFrames, pos, frameSize, frameInterval, loopInterval, loopStyle) {
-    this.framesImage = frames;
-    this.nFrames = nFrames;
-    this.pos = pos;
-    this.frameSize = frameSize;
-    this.frameInterval = frameInterval;
-    this.loopInterval = loopInterval;
-    this.loopStyle = loopStyle ? loopStyle : "basic";
+  constructor(animationSettings) {
+    if (animationSettings.framesImage instanceof HTMLImageElement) {
+      /* if we're building from an existing Animation */
+      this.framesImage = animationSettings.framesImage;
+    } else if (typeof animationSettings.framesImage === "string") {
+      /* make sure the frames image we want actually exists!*/
+      const trialFramesImage = game.images[animationSettings.framesImage];
+      if( trialFramesImage instanceof HTMLImageElement) {
+        this.framesImage = trialFramesImage;
+      } else {
+        throw new Error(`Tried to create animation from unknown frames image: ${trialFramesImage}`)
+      }
+    }
+    this.nFrames = animationSettings.nFrames;
+    this.pos = animationSettings.pos;
+    if (animationSettings.frameSize) {
+      this.frameSize = animationSettings.frameSize;
+    } else {
+      this.frameSize = {w: Math.trunc(this.framesImage.width/this.nFrames), h: this.framesImage.height};
+    }
+    this.frameInterval = animationSettings.frameInterval;
+    this.loopInterval = animationSettings.loopInterval;
+    this.loopStyle = animationSettings.loopStyle ? animationSettings.loopStyle : "basic";
+    /* init default settings */
     this.rewinding = false;
     this.nextFrameTimestamp = 0;
     this.currentFrame = 0;
@@ -178,47 +183,61 @@ function loadScript() {
   });
 }
 
-function loadImage(url) {
+function loadImage(filename) {
   return new Promise((resolve, reject) => {
     let img = new Image();
     img.addEventListener('load', e => resolve(img));
     img.addEventListener('error', () => {
-      reject(new Error(`Failed to load image's URL: ${url}`));
+      reject(new Error(`Failed to load image: ${filename}`));
     });
-    img.src = url;
+    img.src = imagePrefix + filename;
   });
 }
 
 function loadImages(imageList) {
   return new Promise((resolve, reject) => {
-    const numImagesToLoad = imageList.length;
+    const nImagesToLoad = imageList.length;
+    let nImagesLoaded = 0;
     imageList.forEach((imageName) => {
-      const imageUrl = imagePrefix + imageName;
+      const imageUrl = imageName;
       loadImage(imageUrl).then(
         (image) => {/*on resolve*/ 
           game.images[imageName] = image
-          if (Object.keys(game.images).length === numImagesToLoad) {
-            console.log(`Successfully loaded ${numImagesToLoad} images!`)
+          nImagesLoaded += 1;
+          if (nImagesLoaded === nImagesToLoad) {
+            console.log(`Successfully loaded ${nImagesToLoad} images!`)
             resolve()
           }
-        },
-        (error) => {/*on reject*/
-          reject(error)
         }
       );
     });
   });
 }
 
-function testAnimation() {
-  game.animations.push(new Animation(
-    game.images['blink.png'],
-    5,
-    {x: 120, y: 190},
-    {w: 249, h: 226},
-    100,
-    2500,
-    "rewind"))
+function loadAnimations() {
+  return new Promise(function(resolve, reject) {
+    fetch('anim/animations.json').then((response) => {
+      response.text().then((text) => {
+        const framesImageNames = [];
+        const animationSettingsList = JSON.parse(text);
+        /*gather the list of frames images*/
+        animationSettingsList.forEach((animationSettings) => {
+          if (typeof animationSettings.framesImage === "string") {
+            framesImageNames.push(animationSettings.framesImage);
+          } else {
+            throw new TypeError(`Value of framesImage: ${animationSettings.framesImage} is not a string.`)
+          }
+        });
+        /* make sure we have those images*/
+        loadImages(framesImageNames).then(() => {
+          animationSettingsList.forEach((animationSettings) => {
+            game.animations.push(new Animation(animationSettings))
+          });
+          resolve();
+        });
+      });
+    });
+  })
 }
 
 function loadGame() {
@@ -228,10 +247,11 @@ function loadGame() {
     const loadingState = {
       images: false,
       script: false,
+      animations: false,
     };
 
     function resolveIfReady() {
-      if (loadingState.images && loadingState.script) {
+      if (loadingState.images && loadingState.script && loadingState.animations) {
         resolve()
       }
     }
@@ -241,10 +261,15 @@ function loadGame() {
       resolveIfReady();
     });
 
-    loadImages(['background.png','blink.png']).then(() => {
+    loadImages(['background.png']).then(() => {
       loadingState.images = true;
       resolveIfReady();
-    })
+    });
+
+    loadAnimations().then(() => {
+      loadingState.animations = true;
+      resolveIfReady();
+    });
   });
 }
 
@@ -266,7 +291,6 @@ function setUpDoubleBuffering() {
 }
 
 function beginGame() {
-  testAnimation();
   window.requestAnimationFrame(drawFrame);
   displayPassage();
 }
