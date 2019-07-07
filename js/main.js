@@ -175,7 +175,7 @@ function loadScript() {
     fetch('twee/script.tw')
       .then(function (response) {
         response.text().then(function(text) {
-          game.passages = text.split(/::[A-z '\[\]]+\n/).slice(1);
+          game.passages = text.split(/::[A-z '\[\]]+\r?\n/).slice(1);
           console.log(`Successfully loaded script containing ${game.passages.length} lines!`)
           resolve();
       }, reject);
