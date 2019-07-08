@@ -14,5 +14,15 @@
         "frameInterval": 100,
         "loopInterval": 8000,
         "loopStyle": "rewind"
+    },
+    {
+        "framesImage": "cube.png",
+        "nFrames": 11,
+        "pos": {"x": 36,"y": 906},
+        "frameInterval": 100,
+        "loopInterval": 0,
+        "loopStyle":"rewind"
     }
+
 ]
+
