@@ -241,36 +241,13 @@ function loadAnimations() {
 }
 
 function loadGame() {
-  return new Promise((resolve, reject) => {
-    setUpDoubleBuffering();
-    document.getElementById('nextbutton').addEventListener('click', showNextParagraph);
-    const loadingState = {
-      images: false,
-      script: false,
-      animations: false,
-    };
-
-    function resolveIfReady() {
-      if (loadingState.images && loadingState.script && loadingState.animations) {
-        resolve()
-      }
-    }
-
-    loadScript().then(() => {
-      loadingState.script = true;
-      resolveIfReady();
-    });
-
-    loadImages(['background.png']).then(() => {
-      loadingState.images = true;
-      resolveIfReady();
-    });
-
-    loadAnimations().then(() => {
-      loadingState.animations = true;
-      resolveIfReady();
-    });
-  });
+  setUpDoubleBuffering();
+  document.getElementById('nextbutton').addEventListener('click', showNextParagraph);
+  return Promise.all([
+    loadScript(),
+    loadImages(['background.png']),
+    loadAnimations(),
+  ]);
 }
 
 function drawFrame(timestamp) {
