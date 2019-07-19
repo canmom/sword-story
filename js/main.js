@@ -251,6 +251,7 @@ function loadGame() {
 }
 
 function drawFrame(timestamp) {
+  game.context.clearRect(0,0,game.context.canvas.width,game.context.canvas.height)
   game.context.drawImage(game.images['background.png'],0,0);
   // game.context.drawImage(game.images['blink.png'],0,0,249,226,100,100,249,226);
   game.animations.forEach((animation) => {
