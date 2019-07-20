@@ -36,39 +36,47 @@ class Animation {
       this.frameSize = {w: Math.trunc(this.framesImage.width/this.nFrames), h: this.framesImage.height};
     }
     this.frameInterval = animationSettings.frameInterval;
-    this.loopInterval = animationSettings.loopInterval;
-    this.loopStyle = animationSettings.loopStyle ? animationSettings.loopStyle : "basic";
+    this.nextInterval = animationSettings.nextInterval;
+    this.next = animationSettings.next;
+    this.reversed = animationSettings.reversed || false;
+    this.holdFinal = animationSettings.holdFinal || false;
     /* init default settings */
-    this.rewinding = false;
     this.nextFrameTimestamp = 0;
-    this.currentFrame = 0;
-    this.playing = true;
+    this.currentFrame = this.reversed ? this.nFrames - 1 : 0;
+    this.playing = animationSettings.startImmediately !== false;
+    this.holding = false;
   }
 
   advanceFrame() {
-    if (!this.rewinding) {
+    if (!this.reversed) {
       if (this.currentFrame < this.nFrames - 1) {
         this.currentFrame += 1;
-      } else if (this.loopStyle = "rewind") {
-        this.rewinding = true;
-        this.advanceFrame();
       } else {
-        this.currentFrame = 0;
-        this.stopAndScheduleNextPlayback();
+        this.stopAndScheduleNext();
       }
     } else {
       if (this.currentFrame > 0) {
         this.currentFrame -= 1;
       } else {
-        this.rewinding = false;
-        this.stopAndScheduleNextPlayback();
+        this.stopAndScheduleNext();
       }
     }
   }
 
-  stopAndScheduleNextPlayback() {
+  reset() {
+    this.currentFrame = this.reversed ? this.nFrames - 1 : 0;
+    this.holding = 0;
+  }
+
+  stopAndScheduleNext() {
     this.playing = false;
-    window.setTimeout(() => {this.playing = true}, this.loopInterval);
+    this.holding = this.holdFinal;
+    if (this.next) {
+      window.setTimeout(() => {
+        this.reset();
+        game.animations[this.next].playing = true;
+      }, this.nextInterval);
+    }
   }
 
   draw(timestamp,context) {
@@ -77,6 +85,8 @@ class Animation {
         this.advanceFrame();
         this.nextFrameTimestamp = timestamp + this.frameInterval;
       }
+    }
+    if (this.playing || this.holding) {
       context.drawImage(
         this.framesImage,
         this.currentFrame * this.frameSize.w,
@@ -195,43 +205,28 @@ function loadImage(filename) {
 }
 
 function loadImages(imageList) {
-  return new Promise((resolve, reject) => {
-    const nImagesToLoad = imageList.length;
-    let nImagesLoaded = 0;
-    imageList.forEach((imageName) => {
-      const imageUrl = imageName;
-      loadImage(imageUrl).then(
-        (image) => {/*on resolve*/ 
-          game.images[imageName] = image
-          nImagesLoaded += 1;
-          if (nImagesLoaded === nImagesToLoad) {
-            console.log(`Successfully loaded ${nImagesToLoad} images!`)
-            resolve()
-          }
-        }
-      );
-    });
-  });
+  return Promise.all(Array.from(imageList,(imageName) => loadImage(imageName).then((image) => {game.images[imageName] = image;})));
 }
 
 function loadAnimations() {
   return new Promise(function(resolve, reject) {
     fetch('anim/animations.json').then((response) => {
       response.text().then((text) => {
-        const framesImageNames = [];
+        const framesImageNames = new Set();
         const animationSettingsList = JSON.parse(text);
         /*gather the list of frames images*/
-        animationSettingsList.forEach((animationSettings) => {
-          if (typeof animationSettings.framesImage === "string") {
-            framesImageNames.push(animationSettings.framesImage);
+        Object.values(animationSettingsList).forEach((animSettings) => {
+          if (typeof animSettings.framesImage === "string") {
+            framesImageNames.add(animSettings.framesImage);
           } else {
-            throw new TypeError(`Value of framesImage: ${animationSettings.framesImage} is not a string.`)
+            throw new TypeError(`Value of framesImage: ${animSettings.framesImage} is not a string.`)
           }
         });
         /* make sure we have those images*/
+
         loadImages(framesImageNames).then(() => {
-          animationSettingsList.forEach((animationSettings) => {
-            game.animations.push(new Animation(animationSettings))
+          Object.entries(animationSettingsList).forEach(([key,value]) => {
+            game.animations[key] = new Animation(value)
           });
           resolve();
         });
@@ -254,7 +249,7 @@ function drawFrame(timestamp) {
   game.context.clearRect(0,0,game.context.canvas.width,game.context.canvas.height)
   game.context.drawImage(game.images['background.png'],0,0);
   // game.context.drawImage(game.images['blink.png'],0,0,249,226,100,100,249,226);
-  game.animations.forEach((animation) => {
+  Object.values(game.animations).forEach((animation) => {
     animation.draw(timestamp,game.context);
   });
   /*game.context.drawImage(game.offscreenBuffer.canvas,0,0);*/

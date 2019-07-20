@@ -1,28 +1,48 @@
-[
-    {
+{
+    "blink": {
         "framesImage": "blink.png",
         "nFrames": 5,
         "pos": {"x": 120, "y": 190},
         "frameInterval": 100,
-        "loopInterval": 2500,
-        "loopStyle": "rewind"
+        "nextInterval": 100,
+        "next": "blinkReversed",
+        "holdFinal": true
     },
-    {
+    "blinkReversed": {
+        "framesImage": "blink.png",
+        "nFrames": 5,
+        "pos": {"x": 120, "y": 190},
+        "frameInterval": 100,
+        "nextInterval": 2500,
+        "reversed": true,
+        "next": "blink",
+        "startImmediately": false
+    },
+    "roll": {
         "framesImage": "roll.png",
         "nFrames": 4,
         "pos": {"x": 509,"y": 742},
         "frameInterval": 100,
-        "loopInterval": 8000,
-        "loopStyle": "rewind"
+        "nextInterval": 4000,
+        "next": "rollReversed",
+        "holdFinal": true
     },
-    {
+    "rollReversed": {
+        "framesImage": "roll.png",
+        "nFrames": 4,
+        "pos": {"x": 509,"y": 742},
+        "frameInterval": 100,
+        "nextInterval": 4000,
+        "next": "roll",
+        "reversed": true,
+        "startImmediately": false
+    },
+    "cube": {
         "framesImage": "cube.png",
         "nFrames": 11,
         "pos": {"x": 36,"y": 906},
         "frameInterval": 100,
         "loopInterval": 0,
-        "loopStyle":"rewind"
+        "next": "cube"
     }
-
-]
-
+}
