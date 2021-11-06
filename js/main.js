@@ -130,7 +130,7 @@ function recursivelySmarten(element) {
 }
 
 function renderPassage(passage) {
-  game.passageContainer.innerHTML = marked(passage);
+  game.passageContainer.innerHTML = marked.parse(passage);
 
   game.passageContainer.childNodes.forEach((element, index) => {
     if (element.nodeType === Node.TEXT_NODE) {
