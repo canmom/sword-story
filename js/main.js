@@ -1,5 +1,7 @@
 const imagePrefix = 'img/'
 
+console.log("I am being loaded.")
+
 const game = {
   narration : document.getElementById('narration'),
   currentParagraphs : document.getElementById('passages').childNodes,
@@ -12,6 +14,7 @@ const game = {
   passages: null,
   images: {},
   animations: [],
+  finalPassage : false
 };
 
 class Animation {
@@ -155,6 +158,9 @@ function revealNarration() {
 }
 
 function displayPassage() {
+  if (game.passageIndex === (game.passages.length-1)) {
+    game.finalPassage = true
+  }
   renderPassage(game.passages[game.passageIndex]);
   game.passageIndex += 1;
 }
@@ -173,7 +179,10 @@ function nextPassage() {
 function showNextParagraph() {
   game.paragraphIndex += 1;
   if (game.paragraphIndex < game.currentParagraphs.length) {
-    game.currentParagraphs.item(game.paragraphIndex).classList.add('revealed');;
+    game.currentParagraphs.item(game.paragraphIndex).classList.add('revealed');
+    if (game.paragraphIndex === (game.currentParagraphs.length - 1) && game.finalPassage) {
+      document.getElementById('nextbutton').remove()
+    }
   } else {
     nextPassage();
   }
@@ -185,7 +194,7 @@ function loadScript() {
     fetch('twee/script.tw')
       .then(function (response) {
         response.text().then(function(text) {
-          game.passages = text.split(/::[A-z '\[\]]+\r?\n/).slice(1);
+          game.passages = text.split(/::[A-z0-9 '\[\]]+\r?\n/).slice(1);
           console.log(`Successfully loaded script containing ${game.passages.length} lines!`)
           resolve();
       }, reject);
