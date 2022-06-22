@@ -114,6 +114,41 @@ textarea {
     padding: 0.2em 0;
 }
 
+/* ==========================================================================
+   Fonts
+   ========================================================================== */
+
+/*Linux Libertine font*/
+
+@font-face {
+    font-family: 'Linux Libertine';
+    font-weight: normal;
+    font-style: normal;
+    src: local("Linux Libertine"), url("/fonts/LinLibertine_R.woff") format("woff");
+}
+
+@font-face {
+    font-family: 'Linux Libertine';
+    font-weight: normal;
+    font-style: italic;
+    src: local("Linux Libertine Italic"), url("/fonts/LinLibertine_RI.woff") format("woff");
+}
+
+@font-face {
+    font-family: 'Linux Libertine';
+    font-weight: bold;
+    font-style: normal;
+    src: local("Linux Libertine Bold"), url("/fonts/LinLibertine_RB.woff") format("woff");
+}
+
+@font-face {
+    font-family: 'Linux Libertine';
+    font-weight: bold;
+    font-style: italic;
+    src: local("Linux Libertine Bold Italic"), url("/fonts/LinLibertine_RBI.woff") format("woff");
+}
+
+
 
 /* ==========================================================================
    Author's custom styles
